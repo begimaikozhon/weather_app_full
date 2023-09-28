@@ -1,6 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:weather_app_full/components/custom_icon_buttom.dart';
 import 'package:weather_app_full/constants/api_const.dart';
+import 'package:weather_app_full/constants/app_colors.dart';
+import 'package:weather_app_full/constants/app_text.dart';
+import 'package:weather_app_full/constants/app_text_styles.dart';
 import 'package:weather_app_full/models/weather_model.dart';
 
 class HomePage extends StatefulWidget {
@@ -40,24 +44,30 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home page'),
+        centerTitle: true,
+        backgroundColor: AppColors.white,
+        title: const Text(AppText.appBar, style: AppTextStyle.appBar),
       ),
-      body: weatherModel == null
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Center(
-              child: Column(
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/beg.JPG'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: const Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(weatherModel!.id.toString()),
-                Text(weatherModel!.main),
-                Text(weatherModel!.description),
-                Text(weatherModel!.icon),
-                Text(weatherModel!.temp.toString()),
-                Text(weatherModel!.country),
-                Text(weatherModel!.city),
+                CustomIconButton(icon: Icons.near_me),
+                CustomIconButton(icon: Icons.location_city),
               ],
-            )),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
