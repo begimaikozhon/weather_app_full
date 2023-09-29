@@ -11,6 +11,7 @@ class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomePageState createState() => _HomePageState();
 }
 
@@ -83,28 +84,30 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Row(
-                      children: [
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        Text(
-                          '${temp(snapshot.data!.temp)}',
-                          //бул жерде апиден келген данныйды () алып аны ылдыйда
-                          //тузулгон функцияны алдына беребиз
-                          style: const TextStyle(
-                            color: AppColors.white,
-                            fontSize: 96,
+                    Expanded(
+                      flex: 2,
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 12,
                           ),
-                        ),
-                        const Icon(
-                          Icons.snowing,
-                          color: AppColors.white,
-                          size: 96,
-                        ),
-                      ],
+                          Text(
+                            '${temp(snapshot.data!.temp)}',
+                            //бул жерде апиден келген данныйды () алып аны ылдыйда
+                            //тузулгон функцияны алдына беребиз
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 96,
+                            ),
+                          ),
+                          Image.network(
+                            ApiConst.getIcon(snapshot.data!.icon, 4),
+                          ),
+                        ],
+                      ),
                     ),
                     Expanded(
+                      flex: 2,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -127,15 +130,18 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 20),
-                        child: Text(
-                          snapshot.data!.city,
-                          style: const TextStyle(
-                            color: AppColors.white,
-                            fontSize: 60,
+                    Expanded(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Text(
+                            snapshot.data!.city,
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 60,
+                            ),
                           ),
                         ),
                       ),
