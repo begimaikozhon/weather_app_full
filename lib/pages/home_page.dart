@@ -53,86 +53,122 @@ class _HomePageState extends State<HomePage> {
             // жерге чакырып алабыз
             {
           //ал эми snapshot тун {}чарчы кашасына жазган ui коддорду кочуруп жайгаштырып алабыз
-          return Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/weather.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Column(
-              children: [
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CustomIconButton(icon: Icons.near_me),
-                    CustomIconButton(icon: Icons.location_city),
-                  ],
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.connectionState == ConnectionState.none) {
+            return const Center(
+              child: Text('Интернет байланышында койгой бар'),
+            );
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              return Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/weather.jpg'),
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
+                child: Column(
                   children: [
-                    const SizedBox(
-                      width: 12,
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomIconButton(icon: Icons.near_me),
+                        CustomIconButton(icon: Icons.location_city),
+                      ],
                     ),
-                    Text(
-                      '${snapshot.data!.temp! - 273.15}',
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 96,
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 12,
+                        ),
+                        Text(
+                          '${temp(snapshot.data!.temp)}',
+                          //бул жерде апиден келген данныйды () алып аны ылдыйда
+                          //тузулгон функцияны алдына беребиз
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 96,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.snowing,
+                          color: AppColors.white,
+                          size: 96,
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            snapshot.data!.description.replaceAll(' ', '\n'),
+                            // Бул жерде текст виджетиндеги каалаган жерден кесип кийинки строкага откоро алабыз,
+                            // мисалы бул жерде пробелден болот
+                            // а.э. биринчи тырмакчага каалаган тамга же символду жазсак ошол жерден болот
+                            style: const TextStyle(
+                              fontSize: 60,
+                              color: AppColors.white,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 40,
+                          ),
+                        ],
                       ),
                     ),
-                    const Icon(
-                      Icons.snowing,
-                      color: AppColors.white,
-                      size: 96,
+                    const SizedBox(
+                      height: 20,
                     ),
-                  ],
-                ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        "You'll need and".replaceAll(' ', '\n'),
-                        // Бул жерде текст виджетиндеги каалаган жерден кесип кийинки строкага откоро алабыз,
-                        // мисалы бул жерде пробелден болот
-                        // а.э. биринчи тырмакчага каалаган тамга же символду жазсак ошол жерден болот
-                        style: const TextStyle(
-                          fontSize: 60,
-                          color: AppColors.white,
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 20),
+                        child: Text(
+                          snapshot.data!.city,
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 60,
+                          ),
                         ),
                       ),
-                      const SizedBox(
-                        width: 40,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                const Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 20),
-                    child: Text(
-                      'Bishkek',
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 60,
-                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          );
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text(snapshot.error.toString()),
+              );
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          } else {
+            return const Center(
+              child: Text('Белгисиз ката бар'),
+            );
+          }
         },
       ),
     );
   }
+
+  // бул жерде 2 башка шарт жаздык
+  // биринчи  ConnectionState карап
+  // экинчи  hasError карап
+
+  int temp(double temp) {
+    return (temp - 273.15).toInt();
+  }
+  // бул функцияда temp деп берип ага апиден келвин менен келген данныйды
+  // целсийге айландырып double туруну int туруно озгортуп алдык
 }
