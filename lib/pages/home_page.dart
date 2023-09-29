@@ -29,15 +29,10 @@ class _HomePageState extends State<HomePage> {
         country: response.data['sys']['country'],
         city: response.data['name'],
       );
-      setState(() {});
+
       return weatherModel;
     }
-  }
-
-  @override
-  void initState() {
-    fetchData();
-    super.initState();
+    return null;
   }
 
   @override
@@ -48,25 +43,95 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: AppColors.white,
         title: const Text(AppText.appBar, style: AppTextStyle.appBar),
       ),
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/beg.JPG'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: const Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: FutureBuilder(
+        //бул виджет биз апиден данныйларды алганда ui жазылган виджетти оройбуз
+        future: fetchData(),
+        //FutureBuilder дин пропортиси future озуно моделдин атыны алат
+        builder: (context, snapshot)
+            // FutureBuilder дагы бир пропортиси builder озуно context менен snapshot алат
+            // биз моделде тартылып алынган апилерди snapshot деп жазуу менен ui да каалаган
+            // жерге чакырып алабыз
+            {
+          //ал эми snapshot тун {}чарчы кашасына жазган ui коддорду кочуруп жайгаштырып алабыз
+          return Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/weather.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Column(
               children: [
-                CustomIconButton(icon: Icons.near_me),
-                CustomIconButton(icon: Icons.location_city),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomIconButton(icon: Icons.near_me),
+                    CustomIconButton(icon: Icons.location_city),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 12,
+                    ),
+                    Text(
+                      '${snapshot.data!.temp! - 273.15}',
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 96,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.snowing,
+                      color: AppColors.white,
+                      size: 96,
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        "You'll need and".replaceAll(' ', '\n'),
+                        // Бул жерде текст виджетиндеги каалаган жерден кесип кийинки строкага откоро алабыз,
+                        // мисалы бул жерде пробелден болот
+                        // а.э. биринчи тырмакчага каалаган тамга же символду жазсак ошол жерден болот
+                        style: const TextStyle(
+                          fontSize: 60,
+                          color: AppColors.white,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 40,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                const Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 20),
+                    child: Text(
+                      'Bishkek',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontSize: 60,
+                      ),
+                    ),
+                  ),
+                ),
               ],
-            )
-          ],
-        ),
+            ),
+          );
+        },
       ),
     );
   }
