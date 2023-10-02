@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:weather_app_full/components/custom_icon_buttom.dart';
 import 'package:weather_app_full/constants/api_const.dart';
 import 'package:weather_app_full/constants/app_colors.dart';
@@ -11,13 +14,41 @@ class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
-  _HomePageState createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   WeatherModel? weatherModel;
-  Future<WeatherModel?> fetchData() async {
+  Future<Position> weatherLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      var a = await Geolocator.requestPermission();
+      log(a.latitude.toString());
+      log(a.longitude.toString());
+      log(permission.name);
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<WeatherModel?> weatherName() async {
     final dio = Dio();
     final response = await dio.get(ApiConst.api);
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -46,7 +77,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: FutureBuilder(
         //бул виджет биз апиден данныйларды алганда ui жазылган виджетти оройбуз
-        future: fetchData(),
+        future: weatherName(),
         //FutureBuilder дин пропортиси future озуно моделдин атыны алат
         builder: (context, snapshot)
             // FutureBuilder дагы бир пропортиси builder озуно context менен snapshot алат
@@ -74,11 +105,18 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: Column(
                   children: [
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        CustomIconButton(icon: Icons.near_me),
-                        CustomIconButton(icon: Icons.location_city),
+                        CustomIconButton(
+                          onPressed: () async {
+                            weatherLocation();
+                          },
+                          icon: Icons.near_me,
+                        ),
+                        const CustomIconButton(
+                          icon: Icons.location_city,
+                        ),
                       ],
                     ),
                     const SizedBox(
@@ -169,12 +207,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // бул жерде 2 башка шарт жаздык
-  // биринчи  ConnectionState карап
-  // экинчи  hasError карап
-
   int temp(double temp) {
     return (temp - 273.15).toInt();
   }
-  // бул функцияда temp деп берип ага апиден келвин менен келген данныйды
-  // целсийге айландырып double туруну int туруно озгортуп алдык
 }
